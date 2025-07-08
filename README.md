@@ -54,10 +54,14 @@ Remember to install the openAI API
 ```bash
 python server.py --model open-thoughts_OpenThinker3-7B --api --listen
 ```
+```bash
+python server.py --model Qwen_Qwen2.5-7B --api --listen
+```
+
 ## 2.5
 now if you want to use n8n, you can have
 ```bash
-python server.py --model open-thoughts_OpenThinker3-7B --public-api --listen\
+python server.py --model open-thoughts_OpenThinker3-7B --public-api --listen
 ```
 and then paste the link into the HTTP get2
 ## 3. Now run the script in the example folder to interact with mutli-modality
