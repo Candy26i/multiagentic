@@ -70,3 +70,4 @@ and then paste the link into the HTTP get2
 cd examples
 python multimodel.py
 ```
+.\.venv\Scripts\Activate
