@@ -1,6 +1,9 @@
 # multiagentic
 # How to Set-up LLMs as a Web API Service
 
+What the Youtube Video if not clear
+https://www.youtube.com/watch?v=VPW6mVTTtTc
+
 ## 1. Clone and Install the `Text-Generation-Webui` as described in `README.md`
 
 ```bash
@@ -43,9 +46,13 @@ http://localhost:5000/docs
 
 ## 1. Download [Qwen 2.5-7b model](https://huggingface.co/Qwen/Qwen2.5-7B)
 
-with model tag:
+you can download the zip into the MOdel directory of textgenwebui or
+
+with model tag in the textgenwebui page:
 
 `Qwen/Qwen2.5-7b`
+
+and run Load
 
 ## 2. Start the server using the following command
 
