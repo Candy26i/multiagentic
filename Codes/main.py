@@ -35,16 +35,22 @@ def run_single_pipeline(state, mode, structure, max_steps):
     else:
         raise ValueError("Invalid mode")
 
-def run_batch(csv_path, mode, structure, max_steps, log_path=None):
+def run_batch(csv_path, mode, structure, max_steps, log_path=None, data = "auto"):
     results = []
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for idx, row in enumerate(reader, start=1):
             print(f"\n========== Running example number: {idx} ==========")
-            state = {
-                "problem": row["Problem"],
-                "options": row["Options"]
-            }
+            if data == "mathqa":
+                state = {
+                    "problem": row["problem"],
+                    "options": row["options"]
+                }
+            elif data == "pubmedqa":
+                state = {
+                    "context": row["context"],
+                    "problem": row["question"]
+                }
             output = run_single_pipeline(state, mode, structure, max_steps)
             if mode == "supervisor" and log_path:
                 log_conversation_trace_supervisor(idx, output, csv_path=log_path)
@@ -63,6 +69,9 @@ def main():
     parser.add_argument('--max_steps', type=int, default=5, help='Max steps for supervisor mode')
     parser.add_argument('--csv', type=str, help='Path to input CSV file (e.g. gpqa_test.csv)')
     parser.add_argument('--log_path', type=str, help='Path to save conversation traces (supervisor only)', default=None)
+    parser.add_argument('--data', type=str, default="auto", choices=["auto", "mathqa", "pubmedqa"],
+                    help='Data format: mathqa (problem+options), pubmedqa (context+question), or auto')
+
 
     args = parser.parse_args()
 
@@ -77,7 +86,7 @@ def main():
     mode = "hieratical" if args.hieratical else "supervisor"
 
     if args.csv:
-        run_batch(args.csv, mode, structure, args.max_steps, log_path=args.log_path)
+        run_batch(args.csv, mode, structure, args.max_steps, log_path=args.log_path, data=args.data)
 
     else:
         # Example one-off input

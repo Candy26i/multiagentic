@@ -37,9 +37,23 @@ Problem:
     extended_history = history + [{"role": "user", "content": prompt}]
     return call_model(extended_history)
 
-
 def answering_agent(state, history):
-    prompt = f"""You are the answering agent.
+    context = state.get('context', None)
+    if context is not None:
+        prompt = f"""You are the answering agent.
+
+Based on all the prior reasoning and context, provide a clear final answer to the question.
+Answer strictly in the form of: Yes, No, or Maybe
+
+Question:
+{state['problem']}
+Context:
+{state['context']}
+
+Provide your answer in one word.
+"""
+    else:
+        prompt = f"""You are the answering agent.
 
 Based on all the prior reasoning and context, provide the final answer to the math problem.
 Answer strictly in the format : \nAnswer: <A/B/C/D/E>\n. ONLY give the final letter answer, no explanation.
@@ -53,6 +67,7 @@ Options:
 """
     extended_history = history + [{"role": "user", "content": prompt}]
     return call_model(extended_history)
+    
 def problem_understanding_agent(state, history):
     prompt = f"""You are the problem_understanding agent.
 
@@ -73,7 +88,7 @@ Your job is to verify that the reasoning steps and retrieved context are consist
 Highlight any inconsistencies or confirm alignment with known physics.
 
 Question:
-{state['question']}
+{state['problem']}
 Options:
 {state['options']}
 """
@@ -89,13 +104,57 @@ def option_elimination_agent(state, history):
 Based on reasoning and known physics, eliminate implausible or incorrect options. Provide brief justifications.
 
 Question:
-{state['question']}
+{state['problem']}
 Options:
 {state['options']}
 """
     extended_history = history + [{"role": "user", "content": prompt}]
     return call_model(extended_history)
-    
+
+
+
+def question_understanding_agent(state, history):
+    prompt = f"""You are the question_understanding agent.
+
+Your job is to understand the question below and extract what is being asked.
+
+Question:
+{state['problem']}
+"""
+    extended_history = history + [{"role": "user", "content": prompt}]
+    return call_model(extended_history)
+
+
+def context_analysis_agent(state, history):
+    prompt = f"""You are the context_analysis agent.
+
+Analyze the following context in relation to the question.
+
+Context:
+{state['context']}
+Question:
+{state['problem']}
+"""
+    extended_history = history + [{"role": "user", "content": prompt}]
+    return call_model(extended_history)
+
+
+def reasoning_agent(state, history):
+    prompt = f"""You are the reasoning agent.
+
+Using the question and context, reason out the answer in a logical way.
+
+Context:
+{state['context']}
+Question:
+{state['problem']}
+"""
+    extended_history = history + [{"role": "user", "content": prompt}]
+    return call_model(extended_history)
+
+
+
+
 AGENT_FUNCTIONS = {
     "knowledge_grounding": knowledge_grounding_agent,
     "option_elimination": option_elimination_agent,
@@ -103,5 +162,9 @@ AGENT_FUNCTIONS = {
     "problem_understanding": problem_understanding_agent,
     "mathematical_formulation": mathematical_formulation_agent,
     "computation": computation_agent,
+    "question_understanding": question_understanding_agent,
+    "context_analysis": context_analysis_agent,
+    "reasoning": reasoning_agent,
+
 }
 
