@@ -61,8 +61,9 @@ Remember to install the openAI API
 // ```bash
 //python server.py --model open-thoughts_OpenThinker3-7B --api --listen
 //```
-
-
+```bash
+python server.py --model Qwen_Qwen2.5-7B --api --listen --share
+```
 ```bash
 python server.py --model Qwen_Qwen2.5-7B --api --listen
 ```
