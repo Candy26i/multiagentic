@@ -112,7 +112,16 @@ def extract_answer(text):
             return letter
 
     return ""  # fallback
-
+def extract_answer_pubmedqa(last_value):
+    """For PubMedQA: extract yes/no/maybe"""
+    lower = last_value.lower()
+    if "yes" in lower:
+        return "yes"
+    elif "no" in lower:
+        return "no"
+    elif "maybe" in lower:
+        return "maybe"
+    return ""
 def evaluate_accuracy(predictions, ground_truths):
     if len(predictions) != len(ground_truths):
         raise ValueError(f"Length mismatch: {len(predictions)} predictions vs {len(ground_truths)} ground truths.")
@@ -132,7 +141,12 @@ def evaluate(prediction_csv_path, ground_truth_csv_path, task_type):
 
     # Extract
     raw_predictions = extract_last_column_values(prediction_csv_path)
-    parsed_predictions = [extract_answer(p) for p in raw_predictions]
+    if task_type == "pubmedqa":
+        parsed_predictions = [extract_answer_pubmedqa(p) for p in raw_predictions]
+    else:
+        parsed_predictions = [extract_answer(p) for p in raw_predictions]
+
+    #parsed_predictions = [extract_answer(p) for p in raw_predictions]
     ground_truths = extract_ground_truth(ground_truth_csv_path, label_map[task_type])
 
     # Evaluate
