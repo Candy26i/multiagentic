@@ -11,6 +11,7 @@ Make sure your directory includes:
 - `architecture.py`
 - `subagents.py`
 - `utils.py`
+- `evaluate.py`
 - Your model backend (e.g. TextGen WebUI or Ollama running)
 
 ---
@@ -100,5 +101,32 @@ context,question,options
 - Backend must be running before calling `main.py`
 - For TextGenWebUI, provide the correct port during CLI prompt
 - For Ollama, ensure your model is downloaded
+
+---
+## NOW that you have produced a file output, you need to evaluate and print out the accuracy
+
+### Step 2: Evaluate with `evaluate.py`
+
+```bash
+python evaluate.py --pred pubmedqa_output.csv --label pubmedqa.csv --task pubmedqa
+```
+
+Supported task types:
+- `mathqa`: uses the `Correct Answer` column
+- `gpqa`: uses the `correct_answer` column
+- `pubmedqa`: uses the `final decision` column
+
+---
+
+### Output
+
+```bash
+✅ Task: pubmedqa
+Total examples: 500
+Correct answers: 421
+Accuracy: 84.20%
+```
+
+The evaluator uses a robust parsing function to extract and normalize answers from model output, ensuring accurate scoring even with format noise.
 
 ---
