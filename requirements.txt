@@ -1,2 +1,26 @@
+# Core
+python>=3.8
 requests>=2.31.0
-typing-extensions>=4.0.0 
+
+# CSV & data handling
+pandas>=2.0.0
+
+# Argument parsing (builtin in 3.8+, listed for completeness)
+argparse
+
+# Regex / time / os are part of standard lib, no need to install
+
+# Optional: for progress bars or visualization
+tqdm>=4.65.0
+
+# If you use langchain-based dispatching or logging
+langchain>=0.1.0
+
+# If you’re integrating OpenAI API or using other LLM APIs
+openai>=1.0.0
+
+# Optional: for running notebooks
+# jupyterlab
+
+# Optional: for formatting logs and outputs
+# rich
