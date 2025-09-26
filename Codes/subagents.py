@@ -1,4 +1,20 @@
-call_model = None
+import utils
+
+# Set up the call_model function - you can change this to use different models
+def setup_model(model_type="ollama", **kwargs):
+    """Setup the model for agent calls"""
+    global call_model
+    if model_type == "ollama":
+        model = utils.Ollama(**kwargs)
+        call_model = model.call_model
+    elif model_type == "textgenwebui":
+        model = utils.Textgenwebui(**kwargs)
+        call_model = model.call_model
+    else:
+        raise ValueError(f"Unknown model type: {model_type}")
+
+# Default setup - you can change this
+setup_model("ollama", model="qwen2.5:7b")
 
 def problem_understanding_agent(state, history):
     prompt = f"""You are the problem_understanding agent.

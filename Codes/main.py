@@ -43,6 +43,11 @@ def run_batch(csv_path, mode, structure, max_steps, log_path=None, data = "auto"
             print(f"\n========== Running example number: {idx} ==========")
             if data == "mathqa":
                 state = {
+                    "problem": row["Problem"],
+                    "options": row["Options"]
+                }
+            elif data == "gpqa":
+                state = {
                     "problem": row["problem"],
                     "options": row["options"]
                 }
@@ -69,7 +74,7 @@ def main():
     parser.add_argument('--max_steps', type=int, default=5, help='Max steps for supervisor mode')
     parser.add_argument('--csv', type=str, help='Path to input CSV file (e.g. gpqa_test.csv)')
     parser.add_argument('--log_path', type=str, help='Path to save conversation traces (supervisor only)', default=None)
-    parser.add_argument('--data', type=str, default="auto", choices=["auto", "mathqa", "pubmedqa"],
+    parser.add_argument('--data', type=str, default="auto", choices=["auto", "mathqa", "pubmedqa", "gpqa"],
                     help='Data format: mathqa (problem+options), pubmedqa (context+question), or auto')
 
 

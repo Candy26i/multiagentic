@@ -1,6 +1,8 @@
 import subagents
 import re
 
+import utils
+
 class Hierarchical:
     def __init__(self, state, structure=None):
         if structure is None:
@@ -20,7 +22,8 @@ class Hierarchical:
             print(f"\n--- {agent_name} ---")
             output = agent_fn(self.state, self.history)
             print(f"{agent_name}: {output}")
-            self.history.append({"role": "user", "content": output})
+            # 修复：应该是 "role": "assistant"，不是 "user"
+            self.history.append({"role": "assistant", "content": f"[{agent_name}]: {output}"})
             self.transcript.append((agent_name, output))
             row.append(output)
         return row
@@ -39,25 +42,48 @@ class Supervisor:
         self.state = state
         self.structure = structure
         self.max_steps = max_steps
-        self.history = []
+        self.history = []  # 存储agent的输出历史，传递给下一个agent
+        self.supervisor_history = []  # 存储supervisor的决策历史
         self.transcript = []
 
     def call_supervisor(self):
         """
         Run a dynamic decision loop where the supervisor picks agents iteratively.
         """
+        chosen_agent = None
         for i in range(1, self.max_steps + 1):
             print(f"\n--- Supervisor {i} ---")
 
             # Step 1: Ask which agent to call
             allowed_agents = "\n- " + "\n- ".join(self.structure)
-            prompt = f"""Please choose ONE next agent to call from the following:{allowed_agents}
-Reply STRICTLY in the form:\nAgent: <name>\nThen explain why."""
+            problem = self.state["problem"]
+            
+            # 构建supervisor的提示，包含之前的agent历史
+            context_info = ""
+            if self.history:
+                context_info = f"\n\nPrevious agent outputs:\n"
+                for msg in self.history:
+                    context_info += f"{msg['content']}\n"
+            
+            prompt = f"""Given the problem: {problem}{context_info}
 
-            self.history.append({"role": "user", "content": prompt})
-            supervisor_msg = subagents.call_model(self.history)
+Please choose ONE next agent to call from the following:{allowed_agents}
+
+Reply STRICTLY in the form:
+Agent: <name>
+Then explain why."""
+
+            # 为supervisor创建单独的历史记录
+            supervisor_prompt = self.supervisor_history.copy()
+            supervisor_prompt.append({"role": "user", "content": prompt})
+            
+            supervisor_msg = subagents.call_model(supervisor_prompt)
             print(supervisor_msg)
-
+            
+            # 更新supervisor历史
+            self.supervisor_history.append({"role": "user", "content": prompt})
+            self.supervisor_history.append({"role": "assistant", "content": supervisor_msg})
+            
             # Step 2: Extract agent name
             match = re.search(r"Agent:\s*(\w+)", supervisor_msg, re.IGNORECASE)
             chosen_agent = None
@@ -74,15 +100,14 @@ Reply STRICTLY in the form:\nAgent: <name>\nThen explain why."""
                 chosen_agent = "answering"
 
             print(f"✅ Agent chosen: {chosen_agent}")
-            self.history.append({"role": "assistant", "content": supervisor_msg})
-            # Step 3: Call the chosen agent
+            
+            # Step 3: Call the chosen agent with clean agent history
             result = subagents.AGENT_FUNCTIONS[chosen_agent](self.state, self.history)
             self.transcript.append((chosen_agent, result))
             print(f"[{chosen_agent} → result]: {result}")
 
-            # Step 4: Update history
-            
-            self.history.append({"role": "assistant", "content": result})
+            # Step 4: Update agent history for next agent to use
+            self.history.append({"role": "assistant", "content": f"[{chosen_agent}]: {result}"})
 
             if chosen_agent == "answering":
                 print("[Finished] Final answer reached.")
